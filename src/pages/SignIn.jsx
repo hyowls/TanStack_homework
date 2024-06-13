@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
+import { useNavigate } from 'react-router-dom'
+import { login } from '../lib/auth'
 
 const Container = styled.div`
   max-width : 400px;
@@ -44,31 +46,35 @@ const ToggleButton = styled.button`
   cursor: pointer;
 `
 
-const SignIn = () => {
+const SignIn = ({setUser}) => {
   const [id, setId] = useState("")
   const [password, setPassword] = useState("")
+  const navigate = useNavigate()
+
+  const handleSignIn = async() => {
+    const {userId, nickname, avatar} = await login({ id : id, password : password})
+    setUser({userId, nickname, avatar})
+  }
 
   return (
     <Container>
       <InputGroup>
         <label htmlFor='id'>아이디</label>
-        <input type="text" onChange={(e) => {
+        <input type="text" minLength="4" maxLength="10" onChange={(e) => {
           setId(e.target.value)
         }} placeholder='아이디를 입력해주세요' />
       </InputGroup>
       <InputGroup>
         <label htmlFor="password">비밀번호</label>
-        <input type="password" onChange={(e) => {
+        <input type="password" minLength="4" maxLength="15" onChange={(e) => {
           setPassword(e.target.value)
         }} placeholder='비밀번호를 입력해주세요'/>
       </InputGroup>
-      <Button onChange={(e) => {
-        
-      }}>
+      <Button onClick={handleSignIn}>
         로그인
       </Button>
-      <ToggleButton onChange={(e) => {
-        
+      <ToggleButton onClick={() => {
+        navigate('/sign_up')
       }}>
         회원가입
       </ToggleButton>
