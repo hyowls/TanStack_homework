@@ -32,7 +32,7 @@ const UserProfile = styled.div`
   display:flex;
   align-items:center;
 `
-const UserAvatar = styled.div`
+const UserAvatar = styled.img`
   width: 40px;
   height: 40px;
   border-radius: 50px;

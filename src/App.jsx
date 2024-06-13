@@ -8,6 +8,7 @@ import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import { getUserInfo } from "./lib/auth";
 import Layout from "./components/Layout";
+import Profile from "./pages/Profile";
 
 
 function App() {
@@ -84,6 +85,10 @@ function App() {
             <Route
               path="/detail/:id"
               element={<Detail expenses={expenses} setExpenses={setExpenses} />}
+            />
+            <Route 
+              path="/profile"
+              element={<Profile user={user} setUser={setUser} />}
             />
           </Route>
           <Route 
