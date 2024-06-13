@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const JSON_SERVER_HOST = "https://your-json-server.glitch.me";
+const JSON_SERVER_HOST = "https://profuse-separated-grill.glitch.me"; // 올바른 Glitch URL
 
 export const getExpenses = async () => {
   try {
