@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useNavigate, useParams } from "react-router-dom";
-
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getExpense, putExpense, deleteExpense } from "../lib/expense";
 const Container = styled.div`
   max-width: 800px;
   margin: 0 auto;
@@ -57,17 +58,42 @@ const BackButton = styled(Button)`
   }
 `;
 
-export default function Detail({ expenses, setExpenses }) {
+export default function Detail() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const queryClient = useQueryClient()
+  const {data : selectedExpense = {}, isLoading, error} = useQuery({
+    queryKey : ['expenses', id],
+    queryFn : getExpense,
+  })
+  const [date, setDate] = useState("");
+  const [item, setItem] = useState("")
+  const [amount, setAmount] = useState("")
+  const [description, setDescription] = useState("")
 
-  const selectedExpense = expenses.find((element) => element.id === id);
+  useEffect(() => {
+    if(selectedExpense) {
+      setDate(selectedExpense.date || "")
+      setItem(selectedExpense.item || "")
+      setAmount(selectedExpense.amount || "")
+      setDescription(selectedExpense.description || "")
+    }
+  },[selectedExpense])
 
-  const [date, setDate] = useState(selectedExpense.date);
-  const [item, setItem] = useState(selectedExpense.item);
-  const [amount, setAmount] = useState(selectedExpense.amount);
-  const [description, setDescription] = useState(selectedExpense.description);
+  const mutationEdit = useMutation({
+    mutationFn : putExpense,
+    onSuccess : () => {
+      queryClient.invalidateQueries(["expenses"])
+      navigate("/")
+    }
+  })
 
+  const mutationDelete = useMutation({
+    mutationFn : deleteExpense,
+    onSuccess : () => {
+      navigate("/")
+    }
+  })
   const editExpense = () => {
     const datePattern = /^\d{4}-\d{2}-\d{2}$/;
     if (!datePattern.test(date)) {
@@ -78,28 +104,18 @@ export default function Detail({ expenses, setExpenses }) {
       alert("유효한 항목과 금액을 입력해주세요.");
       return;
     }
-
-    const newExpenses = expenses.map((expense) => {
-      if (expense.id !== id) {
-        return expense;
-      } else {
-        return {
-          ...expense,
-          date: date,
-          item: item,
-          amount: amount,
-          description: description,
-        };
-      }
-    });
-    setExpenses(newExpenses);
-    navigate("/");
+    const newExpense = {
+      id : id,
+      date : date,
+      item : item,
+      amount : parseInt(amount, 10),
+      description : description,
+    }
+    mutationEdit.mutate(newExpense)
   };
 
-  const deleteExpense = () => {
-    const newExpenses = expenses.filter((expense) => expense.id !== id);
-    setExpenses(newExpenses);
-    navigate("/");
+  const handleDelete = () => {
+    mutationDelete.mutate(id);
   };
 
   return (
@@ -146,7 +162,7 @@ export default function Detail({ expenses, setExpenses }) {
       </InputGroup>
       <ButtonGroup>
         <Button onClick={editExpense}>수정</Button>
-        <Button danger="true" onClick={deleteExpense}>
+        <Button danger="true" onClick={handleDelete}>
           삭제
         </Button>
         <BackButton onClick={() => navigate(-1)}>뒤로 가기</BackButton>
