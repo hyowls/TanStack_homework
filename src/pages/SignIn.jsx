@@ -53,7 +53,9 @@ const SignIn = ({setUser}) => {
 
   const handleSignIn = async() => {
     const {userId, nickname, avatar} = await login({ id : id, password : password})
+    alert('로그인이 완료되었습니다')
     setUser({userId, nickname, avatar})
+    navigate('/')
   }
 
   return (
